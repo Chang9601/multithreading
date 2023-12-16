@@ -62,25 +62,26 @@ main(int argc, char *argv[]) {
   create_thr(&tid1, 3);
   create_thr(&tid2, 8);
 
-  printf("스레드1 결합 전까지 메인 스레드 블록킹\n");
+  printf("스레드3 결합 전까지 메인 스레드 블록킹\n");
 
-  // 메인 스레드가 스레드1이 합류할 때까지 대기한다.
+  // 메인 스레드가 스레드3이 합류할 때까지 대기한다.
   pthread_join(tid1, &thr_ret1);
 
   if (thr_ret1) {
-    printf("스레드1의 반환값 = %d\n", *(int *)thr_ret1);
-    // 스레드1의 반환값은 스레드 콜백 함수에서 동적으로 할당된 메모리이기 때문에 해제해야 한다.
+    printf("스레드3의 반환값 = %d\n", *(int *)thr_ret1);
+    // 스레드3의 반환값은 스레드 콜백 함수에서 동적으로 할당된 메모리이기 때문에 해제해야 한다.
     free(thr_ret1);
     thr_ret1 = NULL;
   }
 
-  printf("스레드2 결합 전까지 메인 스레드 블록킹\n");
+  printf("스레드8 결합 전까지 메인 스레드 블록킹\n");
   
-  // 메인 스레드가 스레드2가 합류할 때까지 대기한다.
+  // 메인 스레드가 스레드8가 합류할 때까지 대기한다.
   pthread_join(tid2, &thr_ret2);
 
   if (thr_ret2) {
-    printf("스레드2의 반환값 = %d\n", *(int *)thr_ret2);
+    printf("스레드8의 반환값 = %d\n", *(int *)thr_ret2);
+    // 스레드8의 반환값은 스레드 콜백 함수에서 동적으로 할당된 메모리이기 때문에 해제해야 한다.
     free(thr_ret2);
     thr_ret2 = NULL;
   }

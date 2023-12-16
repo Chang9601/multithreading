@@ -49,7 +49,7 @@ main(int argc, char *argv) {
   for (i = 0; i< N_WORKERS; i++) {
     tid = calloc(1, sizeof(*tid));
     *tid = i;
-    pthread_create(&workers[i], NULL, write_to_file, tid);
+    pthread_create(&workers[i], NULL, write_to_file, (void *)tid);
   }
 
   int ch;

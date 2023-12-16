@@ -59,7 +59,7 @@ main(int argc, char *argv) {
   for (i = 0; i< N_WORKERS; i++) {
     tid = calloc(1, sizeof(*tid));
     *tid = i;
-    pthread_create(&workers[i], NULL, write_to_file, tid);
+    pthread_create(&workers[i], NULL, write_to_file, (void *)tid);
   }
 
   int ch;
@@ -80,12 +80,17 @@ main(int argc, char *argv) {
     switch (ch)
     {
       case 1:
+        // 스레드가 취소 가능하지 않으면 작동하지 않는다.
         pthread_cancel(workers[id]);
         break;
       default:
         continue;
     }
-  } 
+  }
+
+  for (i = 0; i< N_WORKERS; i++) {
+    pthread_join(workers[i], NULL);
+  }
 
   exit(EXIT_SUCCESS);
 }

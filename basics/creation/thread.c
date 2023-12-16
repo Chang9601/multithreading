@@ -14,7 +14,7 @@ thr_fn(void *args) {
     sleep(1);
 
   if (cnt == 10) {
-    pthread_exit(0);
+    pthread_exit((void *)0);
   }
 
     cnt++;
@@ -42,7 +42,7 @@ main(int args, char *argv[]) {
 
   create_thr();
   printf("메인 스레드 중지\n");
-  pthread_exit(0); // 메인 스레드가 종료되어도 자식 스레드는 실행 중이다.
+  pthread_exit((void *)0); // 메인 스레드가 종료되어도 자식 스레드는 실행 중이다.
   // pause(); pause() 함수가 주석으로 처리되면 메인 스레드 종료 시 모든 자식 스레드가 종료된다.
 
   exit(EXIT_SUCCESS);
