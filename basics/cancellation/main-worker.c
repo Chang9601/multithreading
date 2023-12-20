@@ -5,25 +5,25 @@
 #include <unistd.h>
 
 #define N_WORKERS 5
-#define BUF_LEN 64
-#define FILE_LEN 64
+#define BUF_SIZE 64
+#define FILE_SIZE 64
 
 pthread_t workers[N_WORKERS];
 
 void *
 write_to_file(void *arg) {
-  char file_name[FILE_LEN];
-  char buf[BUF_LEN];
+  char file[FILE_SIZE];
+  char buf[BUF_SIZE];
   int len;
   int cnt = 0;
 
   int *tid = (int *)arg;
 
-  sprintf(file_name, "thread_%d.txt", *tid);
+  sprintf(file, "thread_%d.txt", *tid);
   FILE *fp;
 
-  if ((fp = fopen(file_name, "w")) == NULL) {
-    fprintf(stdout, "오류 발생! 파일 %s 열기 실패, errno = %d\n", file_name, errno);
+  if ((fp = fopen(file, "w")) == NULL) {
+    fprintf(stdout, "오류 발생! 파일 %s 열기 실패, errno = %d\n", file, errno);
     exit(EXIT_FAILURE);
   }
 
@@ -39,7 +39,7 @@ write_to_file(void *arg) {
 }
 
 int
-main(int argc, char *argv) {
+main(int argc, char *argv[]) {
 
   int i;
   int *tid = 0;

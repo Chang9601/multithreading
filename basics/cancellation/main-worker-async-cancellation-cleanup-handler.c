@@ -5,8 +5,8 @@
 #include <unistd.h>
 
 #define N_WORKERS 5
-#define BUF_LEN 64
-#define FILE_LEN 64
+#define BUF_SIZE 64
+#define FILE_SIZE 64
 
 pthread_t workers[N_WORKERS];
 
@@ -24,8 +24,8 @@ file_cleanup(void *arg) {
 
 void *
 write_to_file(void *arg) {
-  char file_name[FILE_LEN];
-  char buf[BUF_LEN];
+  char file[FILE_SIZE];
+  char buf[BUF_SIZE];
   int len;
   int cnt = 0;
 
@@ -39,11 +39,11 @@ write_to_file(void *arg) {
   // 스레드가 취소 신호를 받으면 정리 함수는 포인터 주소의 메모리를 해제한다.
   pthread_cleanup_push(mem_cleanup, arg);
 
-  sprintf(file_name, "thread_%d.txt", *tid);
+  sprintf(file, "thread_%d.txt", *tid);
   FILE *fp;
 
-  if ((fp = fopen(file_name, "w")) == NULL) {
-    fprintf(stdout, "오류 발생! 파일 %s 열기 실패, errno = %d\n", file_name, errno);
+  if ((fp = fopen(file, "w")) == NULL) {
+    fprintf(stdout, "오류 발생! 파일 %s 열기 실패, errno = %d\n", file, errno);
     // 만약 파일을 열 수 없으면 arg를 해제해야 하는데 스레드가 반환문을 통해 종료될 때 스레드 정리 스택에 있는 정리 함수들 호출되지 않는다.
     // exit(EXIT_FAILURE);
     // 하지만, pthread_exit()를 사용하여 스레드를 종료하면 정리 함수가 호출된다.
@@ -72,7 +72,7 @@ write_to_file(void *arg) {
 }
 
 int
-main(int argc, char *argv) {
+main(int argc, char *argv[]) {
 
   int i;
   int *tid = 0;

@@ -12,12 +12,12 @@ thr_fn(void *arg) {
   // 인자가 더 이상 필요하지 않기에 메모리를 해제한다.
   free(arg);
 
-  int count = 0;
+  int cnt = 0;
   // 스레드가 일을 수행하는 데 일정 시간이 걸리는 것처럼 시뮬레이션하는 코드
-  while (count < id) {
+  while (cnt < id) {
     printf("스레드%d 작업 중\n", id);
     sleep(1);
-    count++;
+    cnt++;
   }
 
   // 스레드의 결과는 항상 힙 메모리에 반환되어야 한다.
@@ -30,7 +30,7 @@ thr_fn(void *arg) {
 void
 create_thr(pthread_t *tid, int id) {
   pthread_attr_t attr;
-  // 생성하는 새로운 스레드의 속성을 지정한다.
+  // 생성하는 새로운 스레드의 속성을 기본값으로 지정한다.
   pthread_attr_init(&attr);
 
   // 4번째 인자는 반드시 힙 영역 혹은 데이터 영역 메모리
@@ -49,6 +49,7 @@ create_thr(pthread_t *tid, int id) {
     exit(EXIT_FAILURE);    
   }
 
+  // pthread_attr_t 구조체를 비활성화한다.
   pthread_attr_destroy(&attr);
 }
   

@@ -4,13 +4,13 @@
 #include <unistd.h>
 
 static void *
-thr_fn(void *args) {
+thr_fn(void *arg) {
 
-  char *input = (char *)args;
+  char *in = (char *)arg;
   int cnt = 1;
 
   while (cnt < 20) {
-    printf("입력 = %s\n", input);
+    printf("입력 = %s\n", in);
     sleep(1);
 
   if (cnt == 10) {
@@ -25,11 +25,11 @@ void
 create_thr() {
   pthread_t tid;
   
-  static char *input = "스레드 #1";
+  static char *in = "스레드 #1";
   
   // 스레드 분기 지점
   // 4번째 인자는 반드시 힙 영역 혹은 데이터 영역 메모리
-  int err = pthread_create(&tid, NULL, thr_fn, (void *)input);
+  int err = pthread_create(&tid, NULL, thr_fn, (void *)in);
 
   if (err != 0) {
     printf("오류 발생! 스레드 생성 실패, errno = %d\n", err);
