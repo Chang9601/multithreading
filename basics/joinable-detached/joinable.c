@@ -50,6 +50,7 @@ create_thr(pthread_t *tid, int id) {
   }
 
   // pthread_attr_t 구조체를 비활성화한다.
+  // pthread_attr_init()의 구현이 속성 객체에 대해 동적 메모리를 할당했다면, pthread_attr_destroy()는 해당 메모리를 해제한다.
   pthread_attr_destroy(&attr);
 }
   
@@ -77,7 +78,7 @@ main(int argc, char *argv[]) {
 
   printf("스레드8 결합 전까지 메인 스레드 블록킹\n");
   
-  // 메인 스레드가 스레드8가 합류할 때까지 대기한다.
+  // 메인 스레드가 스레드8이 합류할 때까지 대기한다.
   pthread_join(tid2, &thr_ret2);
 
   if (thr_ret2) {
