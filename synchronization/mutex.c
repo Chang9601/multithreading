@@ -5,18 +5,18 @@
 
 int arr[] = {17, 42, 55, 63, 88};
 // 두 개의 스레드가 전역 배열에 안전하지 않은 접근을 방지하기 위해 전역 뮤텍스를 사용한다.
-// 코드 블록을 잠그는 코드 잠금 뮤텍스
+// 코드 블록을 잠그는 코드 잠금(code-locking) 뮤텍스
 pthread_mutex_t mutex;
 
 static void *
 sum_thr_fn(void *arg) {
-  int i, sum;
-
-  int arr_length = sizeof(arr) / sizeof(arr[0]);
+  int i, sum, arr_length;
+  
+  arr_length = sizeof(arr) / sizeof(arr[0]);
 
   while (1) {
     sum = 0;
-    // 스레드1이 배열 요소의 합을 계산할 때 뮤텍스를 잠근다.
+    // 스레드 1번이 배열 요소의 합을 계산할 때 뮤텍스를 잠근다.
     pthread_mutex_lock(&mutex);
     for (i = 0; i < arr_length; i++) {
       sum += arr[i];
@@ -26,45 +26,56 @@ sum_thr_fn(void *arg) {
     printf("합 = %d\n", sum);
     pthread_mutex_unlock(&mutex);
   }
+
+  return NULL;
 }
 
 static void *
 swap_thr_fn(void *arg) {
-  int tmp;
-  int arr_length = sizeof(arr) / sizeof(arr[0]);
+  int tmp, arr_length;
+  
+  arr_length = sizeof(arr) / sizeof(arr[0]);
 
   while (1) {
-    // 뮤텍스가 잠겨 있는 동안에 스레드2가 배열의 두 요소를 교환하려고 하면 뮤텍스가 잠겨 있다는 것을 알게 되어서 스레드2는 블록된다.
+    // 뮤텍스가 잠겨 있는 동안에 스레드 2번이 배열의 두 요소를 교환하려고 하면 뮤텍스가 잠겨 있다는 것을 알게 되어서 스레드 2번은 블록된다.
     pthread_mutex_lock(&mutex);
     tmp = arr[0];
     arr[0] = arr[arr_length - 1];
     arr[arr_length - 1] = tmp;
     pthread_mutex_unlock(&mutex);
   }
+
+  return NULL;
 }
 
 void 
 create_sum_thr() {
+  int err;
   pthread_t tid;
 
-  int err = pthread_create(&tid, NULL, sum_thr_fn, NULL);
+  err = pthread_create(&tid, NULL, sum_thr_fn, NULL);
 
   if (err != 0) {
     printf("오류 발생! 스레드 생성 실패, errno = %d\n", err);
     exit(EXIT_FAILURE);    
   }
+
+  return;
 }
 
 void 
 create_swap_thr() {
+  int err;
   pthread_t tid;
 
-  int err = pthread_create(&tid, NULL, swap_thr_fn, NULL);
+  err = pthread_create(&tid, NULL, swap_thr_fn, NULL);
 
   if (err != 0) {
     printf("오류 발생! 스레드 생성 실패, errno = %d\n", err);
     exit(EXIT_FAILURE);    
   }
+
+  return;
 }
 
 
@@ -76,7 +87,7 @@ main(int args, char *argv[]) {
   create_sum_thr();
   create_swap_thr();
 
-  pthread_exit((void *)0);
+  pthread_exit(NULL);
 
   exit(EXIT_SUCCESS);
 }

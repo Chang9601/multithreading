@@ -3,56 +3,60 @@
 #include <errno.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <signal.h>
 
-#define N_WORKERS 5
+#define N_THREADS 5
 #define BUF_SIZE 64
 #define FILE_SIZE 64
 
-pthread_t workers[N_WORKERS];
-
 void
 mem_cleanup(void *arg) {
-  printf("%s...\n", __FUNCTION__);
+  printf("%s...\n", __func__);
+
   free(arg);
+
+  return;
 }
 
 void
 file_cleanup(void *arg) {
-  printf("%s...\n", __FUNCTION__);
+  printf("%s...\n", __func__);
+  
   fclose((FILE *)arg);
+
+  return;
 }
 
 void *
 write_to_file(void *arg) {
-  char file[FILE_SIZE];
-  char buf[BUF_SIZE];
-  int len;
-  int cnt = 0;
+  char file[FILE_SIZE], buf[BUF_SIZE];
+  int len, cnt, *tid;
+  FILE *fp;
 
   pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 
   // 취소를 지연 모드로 설정한다.
   pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
 
-  int *tid = (int *)arg;
+  cnt = 0;
+  tid = (int *)arg;
 
   pthread_cleanup_push(mem_cleanup, arg);
 
   sprintf(file, "thread_%d.txt", *tid);
-  FILE *fp;
 
   if ((fp = fopen(file, "w")) == NULL) {
     fprintf(stdout, "오류 발생! 파일 %s 열기 실패, errno = %d\n", file, errno);
 
-    pthread_exit((void *)0);
+    pthread_exit((void *)-1);
   }
 
-  pthread_cleanup_push(file_cleanup, fp);
+  pthread_cleanup_push(file_cleanup, (void *)fp);
 
-  // 스레드 취소 신호가 전달되었을 때 함수(e.g., sprintf)의 내부 구현을 실행하는 도중에 스레드가 취소될 수 있다.
-  // 즉, 스레드가 취소될 경우 정의되지 않은 동작으로 이어질 수 있는 위험한 지점이다.
-  // 불변성 문제를 해결하기 위해 지연 취소를 사용한다.
   while (1) {
+    // 스레드 취소 신호가 전달되었을 때 함수(e.g., sprintf)의 내부 구현을 실행하는 도중에 스레드가 취소될 수 있다.
+    // 즉, 스레드가 취소될 경우 정의되지 않은 동작으로 이어질 수 있는 위험한 지점이다.
+    // 불변성(invariant) 문제를 해결하기 위해 지연 취소를 사용한다.
     len = sprintf(buf, "%d. 스레드 %d\n", cnt++, *tid);
     fwrite(buf, sizeof(char), len, fp);
     fflush(fp);
@@ -67,48 +71,45 @@ write_to_file(void *arg) {
   pthread_cleanup_pop(1);
   pthread_cleanup_pop(1);
 
-  exit(EXIT_SUCCESS);
+  pthread_exit(NULL);
 }
 
 int
 main(int argc, char *argv[]) {
+  pthread_t tids[N_THREADS];
+  int i, id, ch, err, *tid;
 
-  int i;
-  int *tid = 0;
-
-  for (i = 0; i< N_WORKERS; i++) {
+  for (i = 0; i < N_THREADS; i++) {
     tid = calloc(1, sizeof(*tid));
     *tid = i;
-    pthread_create(&workers[i], NULL, write_to_file, (void *)tid);
-  }
 
-  int ch;
-  int id;
+    err = pthread_create(&tids[i], NULL, write_to_file, (void *)tid);
+    if (err != 0) {
+      printf("오류 발생! 스레드 생성 실패, errno = %d\n", err);
+      
+      exit(EXIT_FAILURE);      
+    }
+  }
 
   while (1) {
     printf("1. 스레드를 취소한다.\n");
     scanf("%d", &ch);
-    printf("스레드 번호를 입력하시오. [0-%d]: ", N_WORKERS - 1);
+
+    printf("스레드 번호를 입력하시오. [0-%d]: ", N_THREADS - 1);
     scanf("%d", &id);
 
-    if (id < 0 || id >= N_WORKERS) {
-      printf("오류 발생! 유효하지 않은 스레드, 다시 입력하시오!\n");
-      exit(EXIT_FAILURE);    
+    if (id < 0 || id >= N_THREADS) {
+      printf("유효하지 않은 스레드 번호!\n");
+      continue;
     }
-    printf("\n");
 
-    switch (ch)
-    {
+    switch (ch) {
       case 1:
-        pthread_cancel(workers[id]);
+        pthread_cancel(tids[id]);
         break;
       default:
         continue;
     }
-  }
-
-  for (i = 0; i< N_WORKERS; i++) {
-    pthread_join(workers[i], NULL);
   }
 
   exit(EXIT_SUCCESS);

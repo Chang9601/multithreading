@@ -8,38 +8,75 @@ int N;
 void *
 thr_fn(void *arg) {
   pthread_t next_tid;
+  int cnt;
 
-  int id = *(int *)arg;
+  cnt = *(int *)arg;
   free(arg);
 
-  if (id < N) {
-    int *next_id = calloc(1, sizeof(*next_id));
-    *next_id = id + 1;
+  if (cnt < N) {
+    int err, *next_cnt;
+    
+    next_cnt = calloc(1, sizeof(*next_cnt));
+    *next_cnt = cnt + 1;
 
-    pthread_create(&next_tid, NULL, thr_fn, (void *)next_id);
-    pthread_join(next_tid, NULL);
+    // 1번 스레드는 2번 스레드를, 2번 스레드는 3번 스레드를, N-1번 스레드는 N번 스레드를 생성한다.
+    err = pthread_create(&next_tid, NULL, thr_fn, (void *)next_cnt);
+    if (err != 0) {
+      printf("오류 발생! 스레드 생성 실패, errno = %d\n", err);
+
+      return (void *)-1;
+    }
+
+    // 2번 스레드는 1번 스레드에, 3번 스레드는 2번 스레드에, ... N번 스레드는 N-1번 스레드에 결합한다.
+    err = pthread_join(next_tid, NULL);
+    if (err != 0) {
+      printf("오류 발생! 스레드 결합 실패, errno = %d\n", err);
+
+      return (void *)-2;
+    }
   }
 
-  printf("%d\n", id);
+  printf("%d\n", cnt);
+
+  return NULL;
 }
 
 void
-create_thr(pthread_t *tid, int id) {
-  int *_id = calloc(1, sizeof(*_id));
-  *_id = id;
+create_thr(pthread_t *tid, int cnt) {
+  int err, *_cnt;
+  
+  _cnt = calloc(1, sizeof(*_cnt));
+  *_cnt = cnt;
 
-  pthread_create(tid, NULL, thr_fn, (void *)_id);
+  // 1번 스레드를 생성한다.
+  err = pthread_create(tid, NULL, thr_fn, (void *)_cnt);
+  if (err != 0) {
+    printf("오류 발생! 스레드 생성 실패, errno = %d\n", err);
+
+    exit(EXIT_FAILURE);    
+  }
+  
+  // 1번 스레드가 메인 스레드에 결합한다.
+  err = pthread_join(*tid, NULL);
+  if (err != 0) {
+    printf("오류 발생! 스레드 결합 실패, errno = %d\n", err);
+    
+    exit(EXIT_FAILURE);
+  }
+
+  return;
 }
 
 int
 main(int argc, char *argv[]) {
+  pthread_t tid;
+  int cnt;
+
+  cnt = 1;
+  
   scanf("%d", &N);
 
-  pthread_t tid;
-  int id = 1;
-
-  create_thr(&tid, id);
-  pthread_join(tid, NULL);
-
+  create_thr(&tid, cnt);
+  
   exit(EXIT_SUCCESS);
 }
