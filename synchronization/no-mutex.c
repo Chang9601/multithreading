@@ -6,14 +6,17 @@
 int arr[] = {17, 42, 55, 63, 88};
 
 static void *
-sum_thr_fn(void *arg) {
+sum_thr_fn(void *arg)
+{
   int i, sum, arr_length;
 
   arr_length = sizeof(arr) / sizeof(arr[0]);
 
-  while (1) {
+  while (1) 
+  {
     sum = 0;
-    for (i = 0; i < arr_length; i++) {
+    for (i = 0; i < arr_length; i++) 
+    {
       sum += arr[i];
     }
     // 가능한 합의 값은 4개
@@ -28,12 +31,14 @@ sum_thr_fn(void *arg) {
 }
 
 static void *
-swap_thr_fn(void *arg) {
+swap_thr_fn(void *arg) 
+{
   int tmp, arr_length;
   
   arr_length = sizeof(arr) / sizeof(arr[0]);
 
-  while (1) {
+  while (1) 
+  {
     tmp = arr[0];
     arr[0] = arr[arr_length - 1];
     arr[arr_length - 1] = tmp;
@@ -43,13 +48,15 @@ swap_thr_fn(void *arg) {
 }
 
 void 
-create_sum_thr() {
+create_sum_thr() 
+{
   pthread_t tid;
   int err;
 
   err = pthread_create(&tid, NULL, sum_thr_fn, NULL);
 
-  if (err != 0) {
+  if (err != 0) 
+  {
     printf("오류 발생! 스레드 생성 실패, errno = %d\n", err);
 
     exit(EXIT_FAILURE);    
@@ -57,13 +64,15 @@ create_sum_thr() {
 }
 
 void 
-create_swap_thr() {
+create_swap_thr() 
+{
   pthread_t tid;
   int err;
   
   err = pthread_create(&tid, NULL, swap_thr_fn, NULL);
 
-  if (err != 0) {
+  if (err != 0) 
+  {
     printf("오류 발생! 스레드 생성 실패, errno = %d\n", err);
 
     exit(EXIT_FAILURE);
@@ -71,7 +80,8 @@ create_swap_thr() {
 }
 
 int
-main(int args, char *argv[]) {
+main(int args, char *argv[]) 
+{
   create_sum_thr();
   create_swap_thr();
 
