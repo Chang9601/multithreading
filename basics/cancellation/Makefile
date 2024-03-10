@@ -10,7 +10,7 @@ EXECUTABLE=main-worker-deferred-cancellation.exe
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJ_O)
-	$(CC) $(CFLAGS) $(OBJ_O) -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
 
 $(OBJ_O): $(SRC_C)
 	$(CC) -c $(CFLAGS) $< -o $@

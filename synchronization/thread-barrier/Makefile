@@ -3,17 +3,17 @@ CFLAGS=-g -Wall -Wshadow -Wvla -Werror -pedantic -Wno-unused-function
 DEBUG=gdb
 TOOL=valgrind
 LDFLAGS=-lpthread
-EXECUTABLE=prod-cons.exe
+EXECUTABLE=main.exe
 
 all: $(EXECUTABLE)
 
-$(EXECUTABLE): prod-cons.o queue.o
+$(EXECUTABLE): main.o thr-barrier.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-prod-cons.o: prod-cons.c
+main.o: main.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
-queue.o: queue.c
+thr-barrier.o: thr-barrier.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
 clean:

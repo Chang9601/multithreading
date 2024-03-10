@@ -13,7 +13,7 @@ all: $(EXECUTABLE)
 
 # $@는 규칙의 대상 파일 이름.
 $(EXECUTABLE): $(OBJ_O)
-	$(CC) $(CFLAGS) $(OBJ_O) -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
 
 # $<는 첫 번째 필수조건(prerequisite)의 이름.
 $(OBJ_O): $(SRC_C)
