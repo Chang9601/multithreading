@@ -1,24 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h> // 스레드 사용 시 필요한 헤더.
-#include <signal.h>
 #include <unistd.h>
 #include <errno.h>
-
-// sig_atomic_t 타입은 원자적으로 접근할 수 있는 데이터 타입이다. 즉, 중단되지 않고 쓰여질 수 있는 변수이다.
-// 항상 volatile 예약어를 포함시키는데 두 가지 스레드, main() 함수와 비동기적으로 실행되는 시그널 핸들러가 접근하기 때문이다.
-// volatile 예약어는 변수가 하드웨어, 인터럽트 또는 동시에 실행되는 스레드와 같은 외부 요소에 의해 변경될 수 있음을 컴파일러에 알려주는 한정자이다. 
-// 변수가 volatile로 선언되면 컴파일러는 해당 값에 최적화나 캐싱을 하지 않는데 값이 현재 코드 외부 요소에 의해 변경될 수 있기 때문이다.
-volatile sig_atomic_t quit_flag = 0;
-
-static void 
-sig_int(int signo)
-{
-  if (signo == SIGINT)
-  {
-    quit_flag = 1;
-  }
-}
 
 void *
 thr_fn(void *arg)
@@ -27,7 +11,7 @@ thr_fn(void *arg)
 
   in = (char *)arg;
 
-  while (!quit_flag)
+  while (1)
   {
     printf("입력 = %s\n", in);
     sleep(1);
@@ -74,12 +58,6 @@ create_thr()
 int
 main(int args, char *argv[])
 {
-  if (signal(SIGINT, sig_int) == SIG_ERR)
-  {
-    printf("오류 발생! SIGINT 신호를 받을 수 없음, errno = %d\n", errno);
-    exit(EXIT_FAILURE);
-  };
-
   create_thr();
   printf("메인 스레드 종료.\n");
   // pause() 함수가 사용될 경우.
