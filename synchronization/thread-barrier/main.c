@@ -8,8 +8,8 @@ pthread_t tids[3];
 void *
 thr_fn(void *arg)
 {
-  // 스레드가 장벽에서 나가는 순서는 무작위일 수 있으며 이는 중요하지 않다.
-  // 중요한 것은 모든 스레드가 1번 장벽을 통과한 다음 모든 스레드가 2번 장벽을 통과하고 즉, 통과하는 순서이다.
+  // 스레드가 스레드 장벽에서 나가는 순서는 무작위일 수 있으며 이는 중요하지 않다.
+  // 중요한 것은 모든 스레드가 1번 스레드 장벽을 통과한 다음 모든 스레드가 2번 스레드 장벽을 통과하고 즉, 통과하는 순서이다.
   char *thr_name = (char *)arg;
 
   // 모든 스레드가 스레드 장벽에 블록된다.
@@ -27,7 +27,8 @@ thr_fn(void *arg)
   return NULL;
 }
 
-int main(int argc, char *argv[])
+int 
+main(int argc, char *argv[])
 {
   const char *thr1_name = "스레드1";
   const char *thr2_name = "스레드2";
