@@ -3,9 +3,9 @@ CFLAGS=-g -Wall -Wshadow -Wvla -Werror -pedantic -Wno-unused-function
 DEBUG=gdb
 TOOL=valgrind
 LDFLAGS=-lpthread
-SRC_C=sem.c
-OBJ_O=sem.o
-EXECUTABLE=sem.exe
+SRC_C=print.c
+OBJ_O=print.o
+EXECUTABLE=print.exe
 
 all: $(EXECUTABLE)
 
